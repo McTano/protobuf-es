@@ -600,9 +600,6 @@ As such, `PlainMessage<T>` can be a great fit to use in throughout your business
 if that business logic is never concerned with serialization, and does not need 
 `instanceof`.
 
-Note that any `T` is assignable to `PlainMessage<T>`.
-
-
 ### AnyMessage
 
 If you want to handle messages of unknown type, the type [`AnyMessage`][src-any-message] 
