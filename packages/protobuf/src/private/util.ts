@@ -69,5 +69,5 @@ export interface Util {
   /**
    * Create a deep copy.
    */
-  clone<T extends Message<T>>(message: T): T;
+  clone<T extends Message<T>>(message: T): Message<T>;
 }

@@ -37,11 +37,11 @@ export interface AnyMessage extends Message<AnyMessage> {
  * It is _not_ safe to extend this class. If you want to create a message at
  * run time, use proto3.makeMessageType().
  */
-export class Message<T extends Message<T> = AnyMessage> {
+export class Message<T extends object = object> {
   /**
    * Compare with a message of the same type.
    */
-  equals(other: T | PlainMessage<T> | undefined | null): boolean {
+  equals(other: object | undefined | null): boolean {
     return this.getType().runtime.util.equals(
       this.getType(),
       this as unknown as T,
@@ -52,8 +52,8 @@ export class Message<T extends Message<T> = AnyMessage> {
   /**
    * Create a deep copy.
    */
-  clone(): T {
-    return this.getType().runtime.util.clone(this as unknown as T);
+  clone(): Message<T> {
+    return this.getType().runtime.util.clone(this as unknown as Message<T>);
   }
 
   /**
@@ -80,7 +80,7 @@ export class Message<T extends Message<T> = AnyMessage> {
     const type = this.getType(),
       format = type.runtime.json,
       opt = format.makeReadOptions(options);
-    format.readMessage(type, jsonValue, opt, this as unknown as T);
+    format.readMessage(type, jsonValue, opt, this as unknown as Message<T>);
     return this;
   }
 
@@ -158,7 +158,7 @@ export class Message<T extends Message<T> = AnyMessage> {
    * the protobuf message declaration and provides metadata for reflection-
    * based operations.
    */
-  getType(): MessageType<T> {
+  getType(): MessageType<Message<T>> {
     // Any class that extends Message _must_ provide a complete static
     // implementation of MessageType.
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
@@ -181,7 +181,7 @@ type PlainField<F> =
   F extends (Date | Uint8Array | bigint | boolean | string | number) ? F
   : F extends Array<infer U> ? Array<PlainField<U>>
   : F extends ReadonlyArray<infer U> ? ReadonlyArray<PlainField<U>>
-  : F extends Message<infer U> ? PlainMessage<U>
+  : F extends Message<infer U> ? U
   : F extends OneofSelectedMessage<infer C, infer V> ? { case: C; value: PlainField<V> }
   : F extends { case: string | undefined; value?: unknown } ? F
   : F extends { [key: string|number]: Message<infer U> } ? { [key: string|number]: PlainField<U> }
@@ -208,10 +208,10 @@ type PartialField<F> =
   F extends (Date | Uint8Array | bigint | boolean | string | number) ? F
   : F extends Array<infer U> ? Array<PartialField<U>>
   : F extends ReadonlyArray<infer U> ? ReadonlyArray<PartialField<U>>
-  : F extends Message<infer U> ? PartialMessage<U>
+  : F extends Message<infer U> ? Partial<U>
   : F extends OneofSelectedMessage<infer C, infer V> ? {case: C; value: PartialMessage<V>}
   : F extends { case: string | undefined; value?: unknown; } ? F
-  : F extends {[key: string|number]: Message<infer U>} ? {[key: string|number]: PartialMessage<U>}
+  : F extends {[key: string|number]: Message<infer U>} ? {[key: string|number]: PartialMessage<Message<U>>}
   : F ;
 
 type OneofSelectedMessage<K extends string, M extends Message<M>> = {

@@ -182,7 +182,7 @@ export function makeUtilCommon(): Omit<Util, "newFieldList" | "initFields"> {
         }
       });
     },
-    clone<T extends Message<T>>(message: T): T {
+    clone<T extends object>(message: Message<T>): Message<T> {
       const type = message.getType(),
         target = new type(),
         any = target as AnyMessage;
